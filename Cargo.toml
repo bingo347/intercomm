@@ -1,0 +1,15 @@
+[package]
+name = "intercomm"
+version = "0.1.0"
+authors = ["Dmitry Belyaev <mail@d-belyaev.ru>"]
+description = "Asynchronous inter-component communication library"
+repository = "https://github.com/bingo347/intercomm"
+license = "MIT"
+keywords = ["intercom", "notification", "request-response"]
+categories = ["asynchronous"]
+edition = "2021"
+rust-version = "1.56"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
