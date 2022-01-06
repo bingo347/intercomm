@@ -10,6 +10,9 @@ categories = ["asynchronous"]
 edition = "2021"
 rust-version = "1.56"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[dependencies.tokio]
+version = "1"
+features = [
+    "sync",
+    "parking_lot",
+]

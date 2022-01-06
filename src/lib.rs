@@ -3,3 +3,6 @@
 #![warn(clippy::missing_panics_doc)]
 
 //! Asynchronous inter-component communication library
+
+#[macro_use]
+mod common;
