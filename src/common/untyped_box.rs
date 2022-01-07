@@ -1,11 +1,11 @@
 use std::any::Any;
 
 pub(crate) struct UntypedBox {
-    inner: Box<dyn Any>,
+    inner: Box<dyn Any + Send + Sync>,
 }
 
 impl UntypedBox {
-    pub(crate) fn new<T: 'static>(value: T) -> Self {
+    pub(crate) fn new<T: Send + Sync + 'static>(value: T) -> Self {
         Self {
             inner: Box::new(value),
         }
