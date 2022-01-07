@@ -3,7 +3,7 @@ use tokio::sync::{OnceCell, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 type Map<V> = HashMap<TypeId, V>;
 
-pub(crate) struct StaticTypeMap<V> {
+pub(crate) struct StaticTypeMap<V = super::UntypedBox> {
     inner: OnceCell<RwLock<Map<V>>>,
 }
 
