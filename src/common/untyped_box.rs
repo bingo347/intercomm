@@ -1,7 +1,9 @@
 use std::any::Any;
 
+type Value = dyn Any + Send + Sync;
+
 pub(crate) struct UntypedBox {
-    inner: Box<dyn Any + Send + Sync>,
+    inner: Box<Value>,
 }
 
 impl UntypedBox {
@@ -19,11 +21,11 @@ impl UntypedBox {
 
     /// Safety: T must be some type that used in UntypedBox::new
     pub(crate) unsafe fn get_ref<T>(&self) -> &T {
-        &*(self.inner.as_ref() as *const dyn Any as *const T)
+        &*(self.inner.as_ref() as *const Value as *const T)
     }
 
     /// Safety: T must be some type that used in UntypedBox::new
     pub(crate) unsafe fn get_mut<T>(&mut self) -> &mut T {
-        &mut *(self.inner.as_mut() as *mut dyn Any as *mut T)
+        &mut *(self.inner.as_mut() as *mut Value as *mut T)
     }
 }
