@@ -16,3 +16,6 @@ features = [
     "sync",
     "parking_lot",
 ]
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"]}

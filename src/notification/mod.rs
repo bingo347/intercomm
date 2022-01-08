@@ -5,6 +5,9 @@ use tokio::sync::mpsc::{error::SendError, Sender, UnboundedSender};
 
 mod subscription;
 
+#[cfg(test)]
+mod test;
+
 pub use subscription::*;
 
 static CHANNELS: StaticTypeMap = StaticTypeMap::new();
