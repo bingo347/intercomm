@@ -29,3 +29,22 @@ impl UntypedBox {
         &mut *(self.inner.as_mut() as *mut Value as *mut T)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn untyped_box() {
+        let mut b = UntypedBox::new(0i32);
+        assert_eq!(unsafe { *b.get_ref::<i32>() }, 0);
+
+        unsafe {
+            *b.get_mut::<i32>() = 1;
+        }
+        assert_eq!(unsafe { *b.get_ref::<i32>() }, 1);
+
+        let b = unsafe { b.consume::<i32>() };
+        assert_eq!(*b, 1);
+    }
+}
