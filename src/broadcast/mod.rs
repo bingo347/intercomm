@@ -5,6 +5,9 @@ use tokio::sync::broadcast::Sender;
 
 mod subscription;
 
+#[cfg(test)]
+mod test;
+
 pub use subscription::*;
 
 static CHANNELS: StaticTypeMap = StaticTypeMap::new();
