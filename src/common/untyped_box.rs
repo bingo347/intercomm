@@ -13,6 +13,7 @@ impl UntypedBox {
         }
     }
 
+    #[allow(dead_code)]
     /// Safety: T must be some type that used in UntypedBox::new
     pub(crate) unsafe fn consume<T>(self) -> Box<T> {
         let raw = Box::into_raw(self.inner);
@@ -24,6 +25,7 @@ impl UntypedBox {
         &*(self.inner.as_ref() as *const Value as *const T)
     }
 
+    #[allow(dead_code)]
     /// Safety: T must be some type that used in UntypedBox::new
     pub(crate) unsafe fn get_mut<T>(&mut self) -> &mut T {
         &mut *(self.inner.as_mut() as *mut Value as *mut T)
