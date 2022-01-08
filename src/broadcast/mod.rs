@@ -35,6 +35,6 @@ pub async fn notify<B: Broadcast>(payload: B::Payload) {
         Some(sender) => sender,
         None => return,
     };
-    let sender = unsafe { sender.get_ref::<Sender<B::Payload>>() };
+    let sender: &Sender<_> = unsafe { sender.get_ref() };
     let _ = sender.send(payload);
 }

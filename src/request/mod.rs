@@ -72,7 +72,7 @@ struct RequestPair<R: Request> {
 
 impl<R: Request> From<SendError<RequestPair<R>>> for RequestError<R> {
     fn from(e: SendError<RequestPair<R>>) -> Self {
-        let SendError(RequestPair { payload, .. }) = e;
+        let RequestPair { payload, .. } = e.0;
         RequestError::SendError(payload)
     }
 }

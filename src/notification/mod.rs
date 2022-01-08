@@ -46,10 +46,10 @@ pub async fn notify<N: Notification>(payload: N::Payload) -> Result<(), NotifyEr
         None => return Err(NotifyError::NotSubscribed(payload)),
     };
     if N::BUFFER_SIZE == 0 {
-        let sender = unsafe { sender.get_ref::<UnboundedSender<N::Payload>>() };
+        let sender: &UnboundedSender<_> = unsafe { sender.get_ref() };
         sender.send(payload)?
     } else {
-        let sender = unsafe { sender.get_ref::<Sender<N::Payload>>() };
+        let sender: &Sender<_> = unsafe { sender.get_ref() };
         sender.send(payload).await?
     }
     Ok(())
