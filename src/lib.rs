@@ -7,4 +7,5 @@
 #[macro_use]
 mod common;
 
+pub mod broadcast;
 pub mod notification;
