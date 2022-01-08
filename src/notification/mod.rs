@@ -27,16 +27,15 @@ pub trait Notification: Sized + 'static {
 /// This enumeration is the list of the possible error outcomes for the
 /// [notify](crate::notification::notify) fn
 #[non_exhaustive]
-#[derive(Debug)]
-pub enum NotifyError<Payload> {
+pub enum NotifyError<N: Notification> {
     /// Has not subscription of this notification
-    NotSubscribed(Payload),
+    NotSubscribed(N::Payload),
     /// Internal notification channel is closed
-    SendError(Payload),
+    SendError(N::Payload),
 }
 
 /// Sends a payload to the [Subscription](crate::notification::Subscription)
-pub async fn notify<N: Notification>(payload: N::Payload) -> Result<(), NotifyError<N::Payload>> {
+pub async fn notify<N: Notification>(payload: N::Payload) -> Result<(), NotifyError<N>> {
     let id = id!(N);
     let channels = CHANNELS.read().await;
     let sender = match channels.get(&id) {
@@ -53,8 +52,22 @@ pub async fn notify<N: Notification>(payload: N::Payload) -> Result<(), NotifyEr
     Ok(())
 }
 
-impl<Payload> From<SendError<Payload>> for NotifyError<Payload> {
-    fn from(e: SendError<Payload>) -> Self {
+impl<N: Notification> From<SendError<N::Payload>> for NotifyError<N> {
+    fn from(e: SendError<N::Payload>) -> Self {
         NotifyError::SendError(e.0)
+    }
+}
+
+impl<N: Notification> std::fmt::Debug for NotifyError<N> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NotifyError::NotSubscribed(_) => {
+                write!(f, "NotifyError in {}: NotSubscribed", N::DEBUG_NAME)?;
+            }
+            NotifyError::SendError(_) => {
+                write!(f, "NotifyError in {}: SendError", N::DEBUG_NAME)?;
+            }
+        }
+        Ok(())
     }
 }
