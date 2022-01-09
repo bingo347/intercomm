@@ -1,4 +1,6 @@
-//! # Request-Response
+//! Request
+//!
+//! Request-response communications
 
 use crate::common::StaticTypeMap;
 use tokio::sync::{

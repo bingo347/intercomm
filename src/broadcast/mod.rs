@@ -1,4 +1,6 @@
-//! # Broadcast notifications
+//! Broadcast notifications
+//!
+//! Notifications with support multiple subscribers
 
 use crate::common::StaticTypeMap;
 use tokio::sync::broadcast::Sender;

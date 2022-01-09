@@ -1,4 +1,6 @@
-//! # Notifications
+//! Notifications
+//!
+//! Notifications with one subscriber per time
 
 use crate::common::StaticTypeMap;
 use tokio::sync::mpsc::{error::SendError, Sender, UnboundedSender};
