@@ -1,4 +1,6 @@
 use super::*;
+use std::sync::Arc;
+use tokio::sync::Notify;
 
 struct Notification1;
 struct Notification2;
@@ -26,9 +28,10 @@ impl Notification for Notification3 {
     const DEBUG_NAME: &'static str = "Notification3";
 }
 
-async fn subscription1() {
+async fn subscription1(ready: Arc<Notify>) {
     println!("Subscribe: subscription1");
     let mut subscription = subscribe::<Notification1>().await.unwrap();
+    ready.notify_one();
     let mut counter = 0i32;
     loop {
         counter += 1;
@@ -43,9 +46,10 @@ async fn subscription1() {
     }
 }
 
-async fn subscription2() {
+async fn subscription2(ready: Arc<Notify>) {
     println!("Subscribe: subscription2");
     let mut subscription = subscribe::<Notification2>().await.unwrap();
+    ready.notify_one();
     for i in 1..=3i32 {
         println!("subscription2: recv() #{}", i);
         let Payload { data } = subscription.recv().await;
@@ -55,9 +59,10 @@ async fn subscription2() {
     subscription.close().await;
 }
 
-async fn subscription3() {
+async fn subscription3(ready: Arc<Notify>) {
     println!("Subscribe: subscription3");
     let mut subscription = subscribe::<Notification3>().await.unwrap();
+    ready.notify_one();
     println!("subscription3: recv()");
     subscription.recv().await;
     println!("subscription3: close()");
@@ -66,10 +71,12 @@ async fn subscription3() {
 
 #[tokio::test]
 async fn parallel_notifications() {
+    let ready = Arc::new(Notify::new());
     println!("parallel_notifications: Start subscriptions");
-    let s1 = tokio::spawn(subscription1());
-    let s2 = tokio::spawn(subscription2());
-    tokio::task::yield_now().await;
+    let s1 = tokio::spawn(subscription1(ready.clone()));
+    let s2 = tokio::spawn(subscription2(ready.clone()));
+    ready.notified().await;
+    ready.notified().await;
 
     for i in 1..=3i32 {
         println!("parallel_notifications: notify() #{}", i);
@@ -86,9 +93,10 @@ async fn parallel_notifications() {
 
 #[tokio::test]
 async fn reopen_subscription() {
+    let ready = Arc::new(Notify::new());
     println!("reopen_subscription: Start subscription #1");
-    let s1 = tokio::spawn(subscription3());
-    tokio::task::yield_now().await;
+    let s1 = tokio::spawn(subscription3(ready.clone()));
+    ready.notified().await;
 
     println!("reopen_subscription: notify #1");
     notify::<Notification3>(()).await.unwrap();
@@ -97,8 +105,8 @@ async fn reopen_subscription() {
     s1.await.unwrap();
 
     println!("reopen_subscription: Start subscription #2");
-    let s2 = tokio::spawn(subscription3());
-    tokio::task::yield_now().await;
+    let s2 = tokio::spawn(subscription3(ready.clone()));
+    ready.notified().await;
 
     println!("reopen_subscription: notify #2");
     notify::<Notification3>(()).await.unwrap();

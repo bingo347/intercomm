@@ -1,4 +1,6 @@
 use super::*;
+use std::sync::Arc;
+use tokio::sync::Notify;
 
 struct SumRequest;
 
@@ -9,9 +11,10 @@ impl Request for SumRequest {
     const DEBUG_NAME: &'static str = "SumRequest";
 }
 
-async fn sum_listener(request_count: usize) {
+async fn sum_listener(request_count: usize, ready: Arc<Notify>) {
     println!("Listen: Sum");
     let mut listener = listen::<SumRequest>().await.unwrap();
+    ready.notify_one();
     for i in 0..request_count {
         println!("Accept: Sum #{}", i);
         listener.accept(|(a, b)| async move { a + b }).await;
@@ -21,9 +24,10 @@ async fn sum_listener(request_count: usize) {
 
 #[tokio::test]
 async fn sum_request() {
+    let ready = Arc::new(Notify::new());
     println!("sum_request: Start listener");
-    let l = tokio::spawn(sum_listener(3));
-    tokio::task::yield_now().await;
+    let l = tokio::spawn(sum_listener(3, ready.clone()));
+    ready.notified().await;
 
     println!("sum_request: Send 3 requests");
     assert_eq!(request::<SumRequest>((1, 2)).await.unwrap(), 3);
