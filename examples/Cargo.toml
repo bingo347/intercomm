@@ -1,0 +1,13 @@
+[package]
+name = "examples"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+intercomm = { path = ".." }
+tokio = { version = "1", features = ["full"]}
+
+[[example]]
+name = "simple"
+path = "simple.rs"
