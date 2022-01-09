@@ -8,6 +8,9 @@ use tokio::sync::{
 
 mod listener;
 
+#[cfg(test)]
+mod test;
+
 pub use listener::*;
 
 static CHANNELS: StaticTypeMap = StaticTypeMap::new();
