@@ -10,6 +10,9 @@ categories = ["asynchronous"]
 edition = "2021"
 rust-version = "1.56"
 
+[dependencies]
+doc-comment = "0.3"
+
 [dependencies.tokio]
 version = "1"
 features = [
