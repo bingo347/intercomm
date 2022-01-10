@@ -88,9 +88,6 @@ pub mod broadcast;
 pub mod notification;
 pub mod request;
 
-#[doc(hidden)]
-pub use doc_comment::doc_comment as __doc_comment;
-
 /// Declare types for
 /// [Broadcast](crate::broadcast::Broadcast),
 /// [Notification](crate::notification::Notification),
@@ -150,11 +147,9 @@ macro_rules! declare {
         }
 
         impl $name {
-            $crate::__doc_comment! {
-                concat!("Sends a payload to the Subscription for ", stringify!($name)),
-                $v async fn notify(payload: $payload) {
-                    $crate::broadcast::notify::<$name>(payload).await
-                }
+            /// Sends a payload to the Subscription
+            $v async fn notify(payload: $payload) {
+                $crate::broadcast::notify::<$name>(payload).await
             }
         }
 
@@ -176,11 +171,9 @@ macro_rules! declare {
         }
 
         impl $name {
-            $crate::__doc_comment! {
-                concat!("Sends a payload to the Subscription for ", stringify!($name)),
-                $v async fn notify(payload: $payload) -> Result<(), $crate::notification::NotifyError<$name>> {
-                    $crate::notification::notify::<$name>(payload).await
-                }
+            /// Sends a payload to the Subscription
+            $v async fn notify(payload: $payload) -> Result<(), $crate::notification::NotifyError<$name>> {
+                $crate::notification::notify::<$name>(payload).await
             }
         }
 
@@ -203,11 +196,9 @@ macro_rules! declare {
         }
 
         impl $name {
-            $crate::__doc_comment! {
-                concat!("Sends a payload to the Listener for ", stringify!($name)),
-                $v async fn request(payload: $payload) -> Result<$response, $crate::request::RequestError<$name>> {
-                    $crate::request::request::<$name>(payload).await
-                }
+            /// Sends a payload to the Listener
+            $v async fn request(payload: $payload) -> Result<$response, $crate::request::RequestError<$name>> {
+                $crate::request::request::<$name>(payload).await
             }
         }
 
