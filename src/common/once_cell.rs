@@ -6,6 +6,10 @@ pub(crate) struct OnceCell<T> {
     cell: UnsafeCell<MaybeUninit<T>>,
 }
 
+// it is correct because OnceCell provide outside read-only reference
+// inner mutability totally blocked all threads that want OnceCell ref
+unsafe impl<T> Sync for OnceCell<T> {}
+
 impl<T> OnceCell<T> {
     pub(crate) const fn new() -> Self {
         Self {
