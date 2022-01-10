@@ -29,11 +29,20 @@ impl<T> OnceCell<T> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::sync::atomic::{AtomicBool, Ordering::SeqCst};
+    use std::{
+        sync::{
+            atomic::{AtomicBool, Ordering::SeqCst},
+            Arc,
+        },
+        thread,
+    };
 
     static IS_ALREADY_INIT: AtomicBool = AtomicBool::new(false);
 
     struct TestInitOnce(i32);
+    struct Wrap(*const TestInitOnce);
+
+    unsafe impl Send for Wrap {}
 
     fn init() -> TestInitOnce {
         if IS_ALREADY_INIT.load(SeqCst) {
@@ -46,9 +55,15 @@ mod test {
 
     #[test]
     fn once_cell() {
-        let cell = OnceCell::new();
+        let cell = Arc::new(OnceCell::new());
+
+        let h = thread::spawn({
+            let cell = cell.clone();
+            move || Wrap(cell.get_or_init(init))
+        });
         let v1 = cell.get_or_init(init);
-        let v2 = cell.get_or_init(init);
+        let v2 = h.join().unwrap();
+        let v2 = unsafe { &*v2.0 };
         assert_eq!(v1.0, v2.0);
     }
 }
