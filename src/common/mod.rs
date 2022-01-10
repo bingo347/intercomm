@@ -4,6 +4,7 @@ macro_rules! id {
     };
 }
 
+mod once_cell;
 mod static_type_map;
 mod untyped_box;
 
