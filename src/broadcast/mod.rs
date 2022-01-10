@@ -14,7 +14,7 @@ pub use subscription::*;
 
 static CHANNELS: StaticTypeMap = StaticTypeMap::new();
 
-/// A multi-notifier, single-subscriber notification
+/// A multi-notifier, multi-subscriber notification
 pub trait Broadcast: Sized + 'static {
     /// The number of notifications
     /// that can be sent without waiting for the receiver
