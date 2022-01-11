@@ -55,8 +55,6 @@ async fn subscription2(ready: Arc<Notify>) {
         let Payload { data } = subscription.recv().await;
         assert_eq!(*data, i);
     }
-    println!("subscription2: close()");
-    subscription.close().await;
 }
 
 async fn subscription3(ready: Arc<Notify>) {
@@ -65,8 +63,6 @@ async fn subscription3(ready: Arc<Notify>) {
     ready.notify_one();
     println!("subscription3: recv()");
     subscription.recv().await;
-    println!("subscription3: close()");
-    subscription.close().await;
 }
 
 #[tokio::test]

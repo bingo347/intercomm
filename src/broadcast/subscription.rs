@@ -1,6 +1,5 @@
 use super::{Broadcast, CHANNELS};
 use crate::common::UntypedBox;
-use std::thread;
 use tokio::sync::broadcast::{channel, error::RecvError, Receiver, Sender};
 
 /// Broadcast notification subscription
@@ -42,8 +41,8 @@ impl<B: Broadcast> Subscription<B> {
 
     /// Closes the subscription
     ///
-    /// Subscriptions must be closed with this method.
-    /// Without it drop will panic
+    /// Closing the subscription with this method
+    /// is preferable for performance reasons
     pub async fn close(mut self) {
         drop(self.receiver.take());
         let id = id!(B);
@@ -59,8 +58,8 @@ impl<B: Broadcast> Subscription<B> {
 
 impl<B: Broadcast> Drop for Subscription<B> {
     fn drop(&mut self) {
-        if self.receiver.is_some() && !thread::panicking() {
-            panic!("Abnormal subscription close for {}", B::DEBUG_NAME);
+        if self.receiver.is_some() {
+            CHANNELS.remove_when_possible(id!(B));
         }
     }
 }

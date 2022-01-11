@@ -1,6 +1,6 @@
 use super::{Notification, CHANNELS};
 use crate::common::UntypedBox;
-use std::{mem, thread};
+use std::mem;
 use tokio::sync::mpsc::{channel, unbounded_channel, Receiver, UnboundedReceiver};
 
 /// Notification subscription
@@ -13,7 +13,8 @@ pub struct Subscription<N: Notification> {
 /// Returns None if notification is already subscribed
 pub async fn subscribe<N: Notification>() -> Option<Subscription<N>> {
     let id = id!(N);
-    if CHANNELS.read().await.contains_key(&id) {
+    let mut channels = CHANNELS.write().await;
+    if channels.contains_key(&id) {
         return None;
     }
     let (sender, receiver) = if N::BUFFER_SIZE == 0 {
@@ -27,7 +28,7 @@ pub async fn subscribe<N: Notification>() -> Option<Subscription<N>> {
         let rx = SubscriptionReceiver::Bounded(rx);
         (tx, rx)
     };
-    CHANNELS.write().await.insert(id, sender);
+    channels.insert(id, sender);
     Some(Subscription { receiver })
 }
 
@@ -53,8 +54,8 @@ impl<N: Notification> Subscription<N> {
 
     /// Closes the subscription
     ///
-    /// Subscriptions must be closed with this method.
-    /// Without it drop will panic
+    /// Closing the subscription with this method
+    /// is preferable for performance reasons
     pub async fn close(mut self) {
         let receiver = mem::replace(&mut self.receiver, SubscriptionReceiver::Closed);
         match receiver {
@@ -73,8 +74,6 @@ impl<N: Notification> Drop for Subscription<N> {
             SubscriptionReceiver::Unbounded(rx) => rx.close(),
             SubscriptionReceiver::Closed => return,
         }
-        if !thread::panicking() {
-            panic!("Abnormal subscription close for {}", N::DEBUG_NAME);
-        }
+        CHANNELS.remove_when_possible(id!(N));
     }
 }

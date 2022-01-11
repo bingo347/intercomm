@@ -1,6 +1,6 @@
 use super::{Request, RequestPair, CHANNELS};
 use crate::common::UntypedBox;
-use std::{mem, thread};
+use std::mem;
 use tokio::sync::mpsc::{channel, unbounded_channel, Receiver, UnboundedReceiver};
 
 /// Request listener
@@ -13,7 +13,8 @@ pub struct Listener<R: Request> {
 /// Returns None if request is already listened
 pub async fn listen<R: Request>() -> Option<Listener<R>> {
     let id = id!(R);
-    if CHANNELS.read().await.contains_key(&id) {
+    let mut channels = CHANNELS.write().await;
+    if channels.contains_key(&id) {
         return None;
     }
     let (sender, receiver) = if R::BUFFER_SIZE == 0 {
@@ -27,7 +28,7 @@ pub async fn listen<R: Request>() -> Option<Listener<R>> {
         let rx = RequestReceiver::Bounded(rx);
         (tx, rx)
     };
-    CHANNELS.write().await.insert(id, sender);
+    channels.insert(id, sender);
     Some(Listener { receiver })
 }
 
@@ -59,8 +60,8 @@ impl<R: Request> Listener<R> {
 
     /// Closes the listener
     ///
-    /// Listeners must be closed with this method.
-    /// Without it drop will panic
+    /// Closing the listener with this method
+    /// is preferable for performance reasons
     pub async fn close(mut self) {
         let receiver = mem::replace(&mut self.receiver, RequestReceiver::Closed);
         match receiver {
@@ -79,8 +80,6 @@ impl<R: Request> Drop for Listener<R> {
             RequestReceiver::Unbounded(rx) => rx.close(),
             RequestReceiver::Closed => return,
         }
-        if !thread::panicking() {
-            panic!("Abnormal listener close for {}", R::DEBUG_NAME);
-        }
+        CHANNELS.remove_when_possible(id!(R));
     }
 }

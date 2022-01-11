@@ -35,6 +35,7 @@ impl<V> StaticTypeMap<V> {
         let inner = self.get_or_init();
         let mut map = inner.map.write().await;
         if inner.has_to_remove.load(Ordering::Relaxed) {
+            eprintln!("clear");
             let mut to_remove = inner.to_remove.lock();
             inner.has_to_remove.store(false, Ordering::Release);
             let to_remove = mem::replace(&mut *to_remove, Vec::new());
