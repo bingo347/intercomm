@@ -81,5 +81,10 @@ impl<R: Request> Drop for Listener<R> {
             RequestReceiver::Closed => return,
         }
         CHANNELS.remove_when_possible(id!(R));
+        #[cfg(debug_assertions)]
+        eprintln!(
+            "Listener for {} closed in slow manner! Use close method for optimize it",
+            R::DEBUG_NAME
+        );
     }
 }

@@ -75,5 +75,10 @@ impl<N: Notification> Drop for Subscription<N> {
             SubscriptionReceiver::Closed => return,
         }
         CHANNELS.remove_when_possible(id!(N));
+        #[cfg(debug_assertions)]
+        eprintln!(
+            "Subscription for {} closed in slow manner! Use close method for optimize it",
+            N::DEBUG_NAME
+        );
     }
 }

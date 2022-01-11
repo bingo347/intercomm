@@ -60,6 +60,11 @@ impl<B: Broadcast> Drop for Subscription<B> {
     fn drop(&mut self) {
         if self.receiver.is_some() {
             CHANNELS.remove_when_possible(id!(B));
+            #[cfg(debug_assertions)]
+            eprintln!(
+                "Subscription for {} closed in slow manner! Use close method for optimize it",
+                B::DEBUG_NAME
+            );
         }
     }
 }
