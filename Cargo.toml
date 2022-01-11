@@ -1,6 +1,6 @@
 [package]
 name = "intercomm"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Dmitry Belyaev <mail@d-belyaev.ru>"]
 description = "Asynchronous inter-component communication library"
 repository = "https://github.com/bingo347/intercomm"
